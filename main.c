@@ -1,54 +1,30 @@
 #include<stdio.h>
 #include<stdint.h>
 #include"SRECParse.h"
-
-/*
-cover all over cases: data is not enough, ...
-*/
+#include"Display.h"
 
 uint8_t main(void){
-    SREC_Status_Type status;
-    uint8_t buffer[3];
+    SREC_Status_Type status = SREC_FILE_NOT_EXIST;
+    uint32_t line_number = 0u;
+    // uint8_t idx;
+    status = SREC_OpenFile("blinkLed.srec");
 
-    // SREC_OpenFile("test.srec");
-    // // FILE* ptr = getFilePtr();
-    // // printf("%c\n", fgetc(ptr));
-    // // printf("%c\n", fgetc(ptr));
-
-    SREC_OpenFile("test.srec");
-    // =>get S0 of srec file type to start
-    status = SREC_StartSrecFile();
-
+    // => read file
     if(status == SREC_FILE_EXIST){
+        status = SREC_StartSrecFile();
 
         if(status == SREC_FILE_START){
+            line_number = 1;
             do{
                 status = SREC_ReadLine();
-                if(SREC_isEOF()){
-                    status = SREC_FILE_FALSE;           // 
-                    break;
-                }
-                // display result
-                
+                line_number++;
+                DisplayLine(line_number, status, *SREC_GetVariable(), SREC_GetDataBytes());
             }while(status != SREC_FILE_END);
         }
     }
-
-    
-
-    // =>get S1/S2/S3 => show result: Line numer-Address-Data(Hex format)-Result(True/False Details)
-    // Or get S7/S8/S9 => end srec file
-
-
-    // status = SREC_ReadLine();
-    // printf("%d\n", status);
+    // printf("status: %d\n", status);
 
     SREC_CloseFile();    
 
     return 0;
 }
-
-
-
-
-// function to calcular and check sum
